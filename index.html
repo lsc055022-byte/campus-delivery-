@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>광운대 캠퍼스 로봇 배달 PRO</title>
+    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=6wzav0wxem"></script>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #e9ecef; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 480px; height: 850px; background-color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; overflow: hidden; border-radius: 0; }
+        @media (min-width: 500px) { .app-container { border-radius: 20px; } }
+        .page { display: none; height: 100%; flex-direction: column; animation: slideIn 0.3s ease-out forwards; }
+        .page.active { display: flex; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+        .header h1 { margin: 0; font-size: 20px; font-weight: bold; }
+        .back-btn { position: absolute; left: 15px; top: 20px; background: none; border: none; color: white; font-size: 18px; cursor: pointer; display: none; }
+        .content { flex: 1; overflow-y: auto; padding: 20px; background-color: #f8f9fa; }
+        .bottom-bar { padding: 15px 20px; background: white; border-top: 1px solid #eee; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .main-btn { width: 100%; padding: 15px; background-color: #4CAF50; color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .main-btn:hover { background-color: #45a049; }
+        .address-box { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .category { background: white; border: 1px solid #eee; border-radius: 12px; padding: 20px 0; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .category:hover { border-color: #4CAF50; background-color: #f1f8f3; transform: translateY(-2px); }
+        .category span { display: block; font-size: 30px; margin-bottom: 8px; }
+        .menu-img { width: 100%; height: 200px; background-color: #ddd; border-radius: 10px; margin-bottom: 20px; background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80'); background-size: cover; background-position: center; }
+        .option-group { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #eee; }
+        .option-label { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .option-label:last-child { border-bottom: none; }
+        .delivery-methods { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .method-card { border: 2px solid #ddd; border-radius: 10px; padding: 15px; background: white; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .method-card.selected { border-color: #4CAF50; background-color: #f1f8f3; }
+        .robot-badge { background: #FF9800; color: white; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+        
+        #map { width: 100%; 
+    height: 100%; 
+    border-radius: 10px; 
+    border: 2px solid #ddd; 
+    background: #eee; 
+    touch-action: none; /* ⭐️ 이 한 줄이 터치 스크롤을 막아줍니다 */ }
+        .map-controls { margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
+        .map-btn { padding: 9px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 13px; }
+        .map-btn.sub-tool { background: #00bcd4; }
+        .map-btn.admin { background: #FF9800; }
+        .map-btn.export { background: #9C27B0; }
+        .map-btn.user { background: #4CAF50; }
+        .map-btn.clear { background: #f44336; }
+        .map-btn.active-mode { box-shadow: 0 0 0 3px #333; transform: scale(1.02); }
+        
+        .custom-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: -2px 2px 5px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
+        .custom-pin::after { content: ''; width: 12px; height: 12px; background: white; border-radius: 50%; transform: rotate(45deg); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div id="page1" class="page active">
+            <div class="header"><h1>캠퍼스 배달</h1></div>
+            <div class="content">
+                <div class="address-box">📍 배달 주소<br><span style="font-size: 14px; font-weight: normal; color: #555;">서울시 노원구 광운로 20 (광운대학교)</span></div>
+                <h3 style="margin-bottom: 15px;">무엇을 드실건가요?</h3>
+                <div class="grid">
+                    <div class="category" onclick="goToPage(2, '치킨')"><span>🍗</span>치킨</div>
+                    <div class="category" onclick="goToPage(2, '버거')"><span>🍔</span>버거</div>
+                    <div class="category" onclick="goToPage(2, '피자')"><span>🍕</span>피자</div>
+                    <div class="category" onclick="goToPage(2, '중식')"><span>🍜</span>중식</div>
+                    <div class="category" onclick="goToPage(2, '한식')"><span>🍚</span>한식</div>
+                    <div class="category" onclick="goToPage(2, '분식')"><span>떡</span>분식</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page2" class="page">
+            <div class="header"><button class="back-btn" onclick="goToPage(1)" style="display: block;">◀</button><h1 id="menuTitle">수제 버거 전문점</h1></div>
+            <div class="content">
+                <div class="menu-img"></div><h2 style="margin: 0 0 5px 0;">클래식 치즈버거 세트</h2><p style="color: #666; font-size: 14px; margin-top: 0;">12,500원</p>
+                <h3 style="margin-top: 20px; font-size: 16px;">추가 옵션 (선택)</h3>
+                <div class="option-group">
+                    <label class="option-label"><span>🧀 치즈 추가 (+500원)</span><input type="checkbox"></label>
+                    <label class="option-label"><span>🥩 패티 추가 (+2,500원)</span><input type="checkbox"></label>
+                    <label class="option-label"><span>🧅 양파 빼기 (무료)</span><input type="checkbox"></label>
+                </div>
+            </div>
+            <div class="bottom-bar"><button class="main-btn" onclick="goToPage(3)">12,500원 담기</button></div>
+        </div>
+
+        <div id="page3" class="page">
+            <div class="header"><button class="back-btn" onclick="goToPage(2)" style="display: block;">◀</button><h1>결제하기</h1></div>
+            <div class="content">
+                <h3 style="margin-top: 0;">배달 방법 선택</h3>
+                <div class="delivery-methods">
+                    <div class="method-card" onclick="selectDelivery(this, 'normal')"><div><div style="font-weight: bold; font-size: 16px;">🚀 빠른 배달</div></div><div style="font-weight: bold;">+ 3,000원</div></div>
+                    <div class="method-card selected" onclick="selectDelivery(this, 'robot')" id="robotDeliveryBtn"><div><div style="font-weight: bold; font-size: 16px; color: #4CAF50;">🤖 캠퍼스 로봇 배달 <span class="robot-badge">무료</span></div></div><div style="font-weight: bold; color: #4CAF50;">0원</div></div>
+                </div>
+            </div>
+            <div class="bottom-bar"><button class="main-btn" id="checkoutBtn" onclick="handleCheckout()">로봇 수령 위치 지정하기</button></div>
+        </div>
+
+        <div id="page4" class="page">
+            <div class="header"><button class="back-btn" onclick="goToPage(3)" style="display: block;">◀</button><h1>로봇 경로 지정</h1></div>
+            <div class="content" style="display: flex; flex-direction: column; padding: 15px;">
+                <div class="map-controls">
+                    <div style="display: flex; gap: 4px;">
+                        <button class="map-btn sub-tool" id="setStartPinBtn" style="flex:1;">🔵 로봇 출발지 핀 설정</button>
+                        <button class="map-btn sub-tool" id="setEndPinBtn" style="flex:1;">🔴 배달 목적지 핀 설정</button>
+                    </div>
+                    <button class="map-btn admin active-mode" id="adminModeBtn">🛠️ 1. 자석 길 깔기 모드 (클릭/우클릭)</button>
+                    <button class="map-btn export" id="exportBtn" onclick="exportAllData()">💾 2. 설정 데이터 추출 (자동 복사됨)</button>
+                    <button class="map-btn user" id="userModeBtn">✍️ 3. 사용자 배달 경로 긋기 테스트</button>
+                    <button class="map-btn clear" id="clearMapBtn">🗑️ 방금 그린 선 지우기</button>
+                </div>
+                <div style="flex: 1; position: relative;"><div id="map"></div></div>
+            </div>
+            <div class="bottom-bar"><button class="main-btn" onclick="finishDemo()">경로 전송 및 주문 완료</button></div>
+        </div>
+    </div>
+
+   <script>
+        // =========================================================
+        // ⭐️ 데이터 통합 영구 저장소
+        // =========================================================
+        const PRELOADED_DATA = {"paths":[[{"lat":37.6191289,"lng":127.058032},{"lat":37.6205396,"lng":127.0587937},{"lat":37.6201316,"lng":127.0597379},{"lat":37.6198087,"lng":127.060446},{"lat":37.6194603,"lng":127.0606176},{"lat":37.6193923,"lng":127.0610897},{"lat":37.6190099,"lng":127.0613257},{"lat":37.6189164,"lng":127.0611219}],[{"lat":37.6191544,"lng":127.0581822},{"lat":37.618347,"lng":127.0590512},{"lat":37.61867,"lng":127.0597593},{"lat":37.6187889,"lng":127.0598023},{"lat":37.6189844,"lng":127.0602314},{"lat":37.6200297,"lng":127.0598237},{"lat":37.6199022,"lng":127.059652},{"lat":37.6194348,"lng":127.0593087},{"lat":37.6190099,"lng":127.0588688},{"lat":37.6190864,"lng":127.0586221}],[{"lat":37.6202251,"lng":127.0593946},{"lat":37.6194773,"lng":127.0588581},{"lat":37.6194518,"lng":127.0585577}],[{"lat":37.6200467,"lng":127.0598774},{"lat":37.6202846,"lng":127.0600919},{"lat":37.6204546,"lng":127.0599417},{"lat":37.620718,"lng":127.0592873},{"lat":37.620718,"lng":127.0592873}],[{"lat":37.6198427,"lng":127.0583753},{"lat":37.6200807,"lng":127.0575599},{"lat":37.6202846,"lng":127.057399}]],"start":{"lat":37.6191459,"lng":127.0580213},"end":{"lat":37.6203101,"lng":127.0600919}}; 
+
+        let selectedDelivery = 'robot';
+        function goToPage(pageNum, titleStr) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page${pageNum}`).classList.add('active');
+            if(pageNum === 2 && titleStr) document.getElementById('menuTitle').innerText = `${titleStr} 전문점`;
+            if(pageNum === 4) setTimeout(() => { if(map) window.dispatchEvent(new Event('resize')); }, 100);
+        }
+
+        function selectDelivery(element, type) {
+            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedDelivery = type;
+            document.getElementById('checkoutBtn').innerText = (type === 'robot') ? "로봇 수령 위치 지정하기" : "결제하기";
+        }
+
+        function handleCheckout() { if (selectedDelivery === 'robot') goToPage(4); else { alert("일반 주문 완료"); goToPage(1); } }
+        function finishDemo() { if(userPaths.length === 0) { alert("경로를 먼저 그려주세요!"); return; } alert("로봇 배달 경로가 전송되었습니다!\n곧 로봇이 출발합니다. 🤖"); goToPage(1); }
+
+        let map; let currentMode = 'admin'; let adminSubMode = 'path'; let isDrawing = false;
+        let magneticPoints = []; let adminPaths = []; let currentAdminPath = [];
+        let userPaths = []; let currentRawPath = []; let renderedPolylines = [];
+        let startCoord = null; let endCoord = null;
+        let startMarker = null; let endMarker = null;
+
+        // 1. 지도 초기화 및 이벤트 연결
+        window.onload = function() {
+            map = new naver.maps.Map('map', { 
+                center: new naver.maps.LatLng(37.619462, 127.059828), 
+                zoom: 17, 
+                draggable: true, 
+                pinchZoom: true,
+                scrollWheel: true
+            });
+
+            // 데이터 로드
+            if (PRELOADED_DATA && PRELOADED_DATA.paths) {
+                PRELOADED_DATA.paths.forEach(pathData => {
+                    const naverPath = pathData.map(p => new naver.maps.LatLng(p.lat, p.lng));
+                    adminPaths.push(naverPath);
+                    for (let i = 1; i < naverPath.length; i++) createMagneticPoints(naverPath[i-1], naverPath[i]);
+                });
+                if (PRELOADED_DATA.start) { startCoord = new naver.maps.LatLng(PRELOADED_DATA.start.lat, PRELOADED_DATA.start.lng); createStartMarker(startCoord); }
+                if (PRELOADED_DATA.end) { endCoord = new naver.maps.LatLng(PRELOADED_DATA.end.lat, PRELOADED_DATA.end.lng); createEndMarker(endCoord); }
+                drawAllPaths();
+            }
+
+            // PC 마우스 이벤트
+            naver.maps.Event.addListener(map, 'mousedown', handleInputStart);
+            naver.maps.Event.addListener(map, 'mousemove', handleInputMove);
+            naver.maps.Event.addListener(map, 'mouseup', handleInputEnd);
+            naver.maps.Event.addListener(map, 'rightclick', cutAdminPath);
+
+            // 스마트폰 터치 이벤트 (스크롤 차단을 위해 브라우저 네이티브 이벤트 사용)
+            const mapEl = document.getElementById('map');
+            mapEl.addEventListener('touchstart', handleNativeTouchStart, { passive: false });
+            mapEl.addEventListener('touchmove', handleNativeTouchMove, { passive: false });
+            mapEl.addEventListener('touchend', handleNativeTouchEnd, { passive: false });
+        };
+
+        // 2. 통합 입력 처리 로직 (마우스 + 터치 완벽 호환)
+        function handleInputStart(e, isNativeTouch = false) {
+            if (isNativeTouch && e.cancelable) e.preventDefault(); // 스크롤 방지
+            
+            if (currentMode === 'user') map.setOptions({ draggable: false }); // 화면 잠금
+
+            let coord = isNativeTouch ? getTouchCoord(e) : (e.coord || e.latLng);
+            if (!coord) return;
+
+            if (currentMode === 'admin') {
+                if (adminSubMode === 'start') { startCoord = coord; createStartMarker(coord); document.getElementById('adminModeBtn').click(); } 
+                else if (adminSubMode === 'end') { endCoord = coord; createEndMarker(coord); document.getElementById('adminModeBtn').click(); } 
+                else { 
+                    currentAdminPath.push(coord); 
+                    if (currentAdminPath.length > 1) createMagneticPoints(currentAdminPath[currentAdminPath.length - 2], currentAdminPath[currentAdminPath.length - 1]); 
+                    drawAllPaths(); 
+                }
+            } else if (currentMode === 'user') { 
+                isDrawing = true; 
+                currentRawPath = [coord]; 
+            }
+        }
+
+        function handleInputMove(e, isNativeTouch = false) {
+            if (isNativeTouch && e.cancelable) e.preventDefault(); // 이동 중 스크롤 완벽 차단
+
+            if (currentMode === 'user' && isDrawing) { 
+                let coord = isNativeTouch ? getTouchCoord(e) : (e.coord || e.latLng);
+                if (coord) {
+                    currentRawPath.push(coord); 
+                    drawAllPaths(); 
+                }
+            }
+        }
+
+        function handleInputEnd(e, isNativeTouch = false) {
+            map.setOptions({ draggable: true }); // 다시 이동 가능하게 복구
+
+            if (currentMode === 'user' && isDrawing) { 
+                isDrawing = false; 
+                const snappedPath = processSnapCorrection(currentRawPath); 
+                if (snappedPath.length > 0) userPaths.push(snappedPath); 
+                currentRawPath = []; 
+                drawAllPaths(); 
+            }
+        }
+
+        // 3. 네이티브 터치 좌표 변환 함수
+        function handleNativeTouchStart(e) { handleInputStart(e, true); }
+        function handleNativeTouchMove(e) { handleInputMove(e, true); }
+        function handleNativeTouchEnd(e) { handleInputEnd(e, true); }
+
+        function getTouchCoord(e) {
+            if(!map) return null;
+            const mapEl = document.getElementById('map');
+            const rect = mapEl.getBoundingClientRect();
+            const touch = e.touches[0] || e.changedTouches[0];
+            if(!touch) return null;
+            const pixel = new naver.maps.Point(touch.clientX - rect.left, touch.clientY - rect.top);
+            return map.getProjection().fromContainerPixelToLatLng(pixel);
+        }
+
+        // 4. UI 핀 및 경로 그리기
+        function createStartMarker(coord) {
+            if (startMarker) startMarker.setMap(null);
+            startMarker = new naver.maps.Marker({ position: coord, map: map, icon: { content: `<div class="custom-pin" style="background-color: #2196F3;"></div>`, anchor: new naver.maps.Point(15, 30) } });
+        }
+
+        function createEndMarker(coord) {
+            if (endMarker) endMarker.setMap(null);
+            endMarker = new naver.maps.Marker({ position: coord, map: map, icon: { content: `<div class="custom-pin" style="background-color: #FF3366;"></div>`, anchor: new naver.maps.Point(15, 30) } });
+        }
+
+        function exportAllData() {
+            cutAdminPath(); 
+            if(adminPaths.length === 0 && !startCoord && !endCoord) { alert("설정된 데이터(길 또는 핀)가 없습니다."); return; }
+            const integratedPackage = {
+                paths: adminPaths.map(path => path.map(p => ({lat: p.lat(), lng: p.lng()}))),
+                start: startCoord ? {lat: startCoord.lat(), lng: startCoord.lng()} : null,
+                end: endCoord ? {lat: endCoord.lat(), lng: endCoord.lng()} : null
+            };
+            const jsonStr = JSON.stringify(integratedPackage);
+            const tempInput = document.createElement("textarea");
+            tempInput.value = jsonStr; document.body.appendChild(tempInput); tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput);
+            alert("✅ 데이터 복사 완료! 소스코드에 덮어쓰기 하세요.");
+        }
+
+        document.getElementById('setStartPinBtn').addEventListener('click', () => { currentMode = 'admin'; adminSubMode = 'start'; resetActiveVisuals(); document.getElementById('setStartPinBtn').classList.add('active-mode'); });
+        document.getElementById('setEndPinBtn').addEventListener('click', () => { currentMode = 'admin'; adminSubMode = 'end'; resetActiveVisuals(); document.getElementById('setEndPinBtn').classList.add('active-mode'); });
+        document.getElementById('adminModeBtn').addEventListener('click', () => { currentMode = 'admin'; adminSubMode = 'path'; resetActiveVisuals(); document.getElementById('adminModeBtn').classList.add('active-mode'); map.setOptions({ draggable: true }); });
+        document.getElementById('userModeBtn').addEventListener('click', () => { currentMode = 'user'; cutAdminPath(); resetActiveVisuals(); document.getElementById('userModeBtn').classList.add('active-mode'); map.setOptions({ draggable: false }); });
+
+        function resetActiveVisuals() { document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active-mode')); }
+        document.getElementById('clearMapBtn').addEventListener('click', () => { userPaths = []; currentRawPath = []; drawAllPaths(); });
+        function cutAdminPath() { if (currentAdminPath.length > 0) { adminPaths.push([...currentAdminPath]); currentAdminPath = []; drawAllPaths(); } }
+        function clearMapObjects() { renderedPolylines.forEach(line => line.setMap(null)); renderedPolylines = []; }
+
+        function createMagneticPoints(p1, p2) { const steps = 15; for(let i = 0; i <= steps; i++) magneticPoints.push(new naver.maps.LatLng(p1.lat() + (p2.lat() - p1.lat()) * (i / steps), p1.lng() + (p2.lng() - p1.lng()) * (i / steps))); }
+        function processSnapCorrection(rawPath) {
+            let result = []; let snapTolerance = 0.0003; 
+            for (let i = 0; i < rawPath.length; i++) {
+                if (i % 2 !== 0 && i !== rawPath.length - 1) continue; 
+                let mx = rawPath[i].lat(); let my = rawPath[i].lng(); let nearest = null; let minDist = snapTolerance;
+                for(let p of magneticPoints) { let d = Math.hypot(p.lat() - mx, p.lng() - my); if(d < minDist) { minDist = d; nearest = p; } }
+                if (nearest) { if (result.length === 0 || (result[result.length-1].lat() !== nearest.lat() || result[result.length-1].lng() !== nearest.lng())) result.push(nearest); }
+            }
+            return result;
+        }
+
+        function drawAllPaths() {
+            clearMapObjects();
+            if (currentMode === 'admin') {
+                adminPaths.forEach(path => renderedPolylines.push(new naver.maps.Polyline({ map: map, path: path, strokeColor: '#FF9800', strokeWeight: 10, strokeOpacity: 0.5, strokeLineCap: 'round', strokeLineJoin: 'round' })));
+                if (currentAdminPath.length > 0) renderedPolylines.push(new naver.maps.Polyline({ map: map, path: currentAdminPath, strokeColor: '#FF9800', strokeWeight: 10, strokeOpacity: 0.5, strokeLineCap: 'round', strokeLineJoin: 'round' }));
+            }
+            userPaths.forEach(path => renderedPolylines.push(new naver.maps.Polyline({ map: map, path: path, strokeColor: '#FF0000', strokeWeight: 6, strokeLineCap: 'round', strokeLineJoin: 'round' })));
+            if (currentRawPath.length > 0) renderedPolylines.push(new naver.maps.Polyline({ map: map, path: currentRawPath, strokeColor: '#555555', strokeWeight: 4, strokeStyle: 'shortdash' }));
+        }
+    </script>
+</body>
+</html>
