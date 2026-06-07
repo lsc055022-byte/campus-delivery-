@@ -7,367 +7,285 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --baemin-teal: #2AC1BC;
-    --baemin-dark: #1A1A2E;
-    --baemin-gray: #F5F5F5;
-    --baemin-text: #333333;
-    --baemin-sub: #888888;
-    --baemin-border: #E8E8E8;
-    --baemin-red: #FF4757;
-    --baemin-orange: #FF6B35;
-    --baemin-white: #FFFFFF;
+    --teal: #2AC1BC;
+    --teal-dark: #1fa09c;
+    --gray-bg: #F5F5F5;
+    --text: #333333;
+    --sub: #888888;
+    --border: #E8E8E8;
+    --red: #FF4757;
+    --white: #FFFFFF;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
   body {
     font-family: 'Noto Sans KR', sans-serif;
-    background-color: #EFEFEF;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: #EFEFEF;
+    display: flex; justify-content: center; align-items: center;
     min-height: 100vh;
     touch-action: manipulation;
   }
-
   .app-container {
-    width: 100%;
-    max-width: 420px;
-    height: 100vh;
-    max-height: 860px;
-    background: var(--baemin-white);
-    position: relative;
-    overflow: hidden;
+    width: 100%; max-width: 420px;
+    height: 100vh; max-height: 860px;
+    background: var(--white);
+    position: relative; overflow: hidden;
     box-shadow: 0 20px 60px rgba(0,0,0,0.15);
   }
-
   @media (min-width: 440px) {
     .app-container { border-radius: 24px; height: 860px; }
   }
-
-  /* 페이지 전환 */
   .page { display: none; height: 100%; flex-direction: column; }
   .page.active { display: flex; }
 
   /* 헤더 */
   .header {
-    background: var(--baemin-teal);
-    color: white;
+    background: var(--teal); color: white;
     padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-shrink: 0;
-    position: relative;
+    display: flex; align-items: center;
+    flex-shrink: 0; position: relative;
   }
   .header h1 { font-size: 18px; font-weight: 700; flex: 1; text-align: center; }
   .back-btn {
     background: none; border: none; color: white;
-    font-size: 20px; cursor: pointer; padding: 4px;
-    position: absolute; left: 16px;
+    font-size: 24px; cursor: pointer; padding: 4px;
+    position: absolute; left: 16px; line-height: 1;
   }
 
   /* 주소바 */
   .address-bar {
-    background: white;
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--baemin-border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
+    background: white; padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
   }
-  .address-bar span { font-size: 13px; color: var(--baemin-sub); }
-  .address-bar strong { font-size: 13px; color: var(--baemin-text); font-weight: 500; }
+  .address-bar strong { font-size: 13px; color: var(--text); font-weight: 500; }
 
-  /* 콘텐츠 영역 */
-  .content { flex: 1; overflow-y: auto; background: var(--baemin-gray); }
+  /* 콘텐츠 */
+  .content { flex: 1; overflow-y: auto; background: var(--gray-bg); }
 
   /* 섹션 타이틀 */
   .section-title {
     padding: 20px 20px 12px;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--baemin-text);
+    font-size: 16px; font-weight: 700; color: var(--text);
     background: white;
   }
 
-  /* 카테고리 그리드 */
+  /* 카테고리 */
   .category-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--baemin-border);
-    border-top: 1px solid var(--baemin-border);
-    border-bottom: 1px solid var(--baemin-border);
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--border);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
   }
   .category-item {
-    background: white;
-    padding: 20px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: background 0.15s;
-    user-select: none;
+    background: white; padding: 20px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    cursor: pointer; transition: background 0.15s; user-select: none;
   }
   .category-item:active { background: #F0FAFA; }
   .category-item .icon { font-size: 32px; }
-  .category-item .label { font-size: 13px; font-weight: 500; color: var(--baemin-text); }
+  .category-item .label { font-size: 13px; font-weight: 500; color: var(--text); }
 
   /* 배너 */
   .promo-banner {
     margin: 16px;
     background: linear-gradient(135deg, #2AC1BC, #1A9994);
-    border-radius: 12px;
-    padding: 16px 20px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-radius: 12px; padding: 16px 20px;
+    color: white; display: flex; justify-content: space-between; align-items: center;
   }
   .promo-banner .promo-text { font-size: 13px; opacity: 0.9; }
   .promo-banner .promo-title { font-size: 16px; font-weight: 700; margin-top: 2px; }
   .promo-banner .promo-badge {
-    background: white;
-    color: var(--baemin-teal);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 6px 12px;
-    border-radius: 20px;
+    background: white; color: var(--teal);
+    font-size: 12px; font-weight: 700;
+    padding: 6px 12px; border-radius: 20px;
   }
 
-  /* 메뉴 페이지 */
+  /* 메뉴 */
   .menu-img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    background: linear-gradient(135deg, #ddd, #eee);
+    width: 100%; height: 220px;
+    background: #ddd;
     background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80');
-    background-size: cover;
-    background-position: center;
+    background-size: cover; background-position: center;
     flex-shrink: 0;
   }
-
   .menu-info {
-    background: white;
-    padding: 20px;
-    border-bottom: 8px solid var(--baemin-gray);
+    background: white; padding: 20px;
+    border-bottom: 8px solid var(--gray-bg);
   }
-  .menu-info h2 { font-size: 20px; font-weight: 700; color: var(--baemin-text); }
-  .menu-info .price { font-size: 22px; font-weight: 900; color: var(--baemin-text); margin-top: 8px; }
-
-  .option-section {
-    background: white;
-    padding: 20px;
-  }
-  .option-section h3 {
-    font-size: 15px; font-weight: 700;
-    color: var(--baemin-text); margin-bottom: 12px;
-  }
+  .menu-info h2 { font-size: 20px; font-weight: 700; }
+  .menu-info .price { font-size: 22px; font-weight: 900; margin-top: 8px; }
+  .option-section { background: white; padding: 20px; }
+  .option-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
   .option-item {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--baemin-border);
+    padding: 14px 0; border-bottom: 1px solid var(--border);
   }
   .option-item:last-child { border-bottom: none; }
-  .option-item label { font-size: 14px; color: var(--baemin-text); display: flex; align-items: center; gap: 8px; cursor: pointer; }
-  .option-item .opt-price { font-size: 13px; color: var(--baemin-sub); }
-
-  /* 커스텀 체크박스 */
+  .option-item label { font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .option-item .opt-price { font-size: 13px; color: var(--sub); }
   .custom-check { display: none; }
   .check-box {
-    width: 22px; height: 22px;
-    border: 2px solid var(--baemin-border);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-    flex-shrink: 0;
+    width: 22px; height: 22px; border: 2px solid var(--border);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
   }
-  .custom-check:checked + .check-box {
-    background: var(--baemin-teal);
-    border-color: var(--baemin-teal);
-  }
+  .custom-check:checked + .check-box { background: var(--teal); border-color: var(--teal); }
   .custom-check:checked + .check-box::after { content: '✓'; color: white; font-size: 13px; font-weight: 700; }
 
-  /* 결제 페이지 */
+  /* 결제 */
   .delivery-section { background: white; padding: 20px; margin-bottom: 8px; }
-  .delivery-section h3 { font-size: 15px; font-weight: 700; color: var(--baemin-text); margin-bottom: 16px; }
-
+  .delivery-section h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
   .method-card {
-    border: 2px solid var(--baemin-border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border: 2px solid var(--border); border-radius: 12px;
+    padding: 16px; margin-bottom: 10px; cursor: pointer;
+    transition: all 0.15s; display: flex; justify-content: space-between; align-items: center;
     user-select: none;
   }
-  .method-card.selected {
-    border-color: var(--baemin-teal);
-    background: #F0FDFB;
-  }
+  .method-card.selected { border-color: var(--teal); background: #F0FDFB; }
   .method-card .method-left { display: flex; flex-direction: column; gap: 4px; }
-  .method-card .method-name { font-size: 15px; font-weight: 700; color: var(--baemin-text); }
-  .method-card.selected .method-name { color: var(--baemin-teal); }
-  .method-card .method-desc { font-size: 12px; color: var(--baemin-sub); }
-  .method-card .method-price { font-size: 16px; font-weight: 700; color: var(--baemin-text); }
-  .method-card.selected .method-price { color: var(--baemin-teal); }
-
+  .method-card .method-name { font-size: 15px; font-weight: 700; }
+  .method-card.selected .method-name { color: var(--teal); }
+  .method-card .method-desc { font-size: 12px; color: var(--sub); }
+  .method-card .method-price { font-size: 16px; font-weight: 700; }
+  .method-card.selected .method-price { color: var(--teal); }
   .robot-badge {
-    background: var(--baemin-teal);
-    color: white;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 10px;
-    margin-left: 6px;
+    background: var(--teal); color: white;
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px; margin-left: 6px;
   }
-
-  /* 주문 요약 */
-  .order-summary {
-    background: white;
-    padding: 20px;
-  }
+  .order-summary { background: white; padding: 20px; }
   .order-summary h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
   .summary-row {
     display: flex; justify-content: space-between;
-    font-size: 14px; color: var(--baemin-sub);
-    padding: 6px 0;
+    font-size: 14px; color: var(--sub); padding: 6px 0;
   }
   .summary-row.total {
-    border-top: 1px solid var(--baemin-border);
-    margin-top: 8px; padding-top: 14px;
-    font-size: 16px; font-weight: 700;
-    color: var(--baemin-text);
+    border-top: 1px solid var(--border); margin-top: 8px; padding-top: 14px;
+    font-size: 16px; font-weight: 700; color: var(--text);
   }
-  .summary-row.total span:last-child { color: var(--baemin-teal); }
+  .summary-row.total span:last-child { color: var(--teal); }
 
   /* 바텀바 */
   .bottom-bar {
-    padding: 12px 20px;
-    background: white;
-    border-top: 1px solid var(--baemin-border);
-    flex-shrink: 0;
+    padding: 12px 20px; background: white;
+    border-top: 1px solid var(--border); flex-shrink: 0;
   }
   .main-btn {
     width: 100%; padding: 16px;
-    background: var(--baemin-teal);
-    color: white; border: none;
-    border-radius: 12px;
-    font-size: 16px; font-weight: 700;
-    cursor: pointer;
-    font-family: 'Noto Sans KR', sans-serif;
-    transition: background 0.15s;
-    user-select: none;
+    background: var(--teal); color: white; border: none;
+    border-radius: 12px; font-size: 16px; font-weight: 700;
+    cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+    transition: background 0.15s; user-select: none;
   }
-  .main-btn:active { background: #1fa09c; }
-  .main-btn.disabled { background: #ccc; }
+  .main-btn:active { background: var(--teal-dark); }
+  .main-btn.gray { background: #ccc; }
 
-  /* 지도 페이지 */
+  /* ── 지도 페이지 공통 ── */
   .map-page-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: white;
+    flex: 1; display: flex; flex-direction: column; overflow: hidden; background: white;
   }
+  .step-indicator {
+    padding: 10px 20px; background: white;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px; flex-shrink: 0;
+  }
+  .step-dot {
+    flex: 1; height: 4px; border-radius: 2px; background: var(--border);
+    transition: background 0.3s;
+  }
+  .step-dot.active { background: var(--teal); }
 
   .map-guide {
-    padding: 12px 20px;
-    background: #FFF9E6;
-    border-bottom: 1px solid #FFE9A0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
+    padding: 11px 16px; flex-shrink: 0;
+    display: flex; align-items: center; gap: 8px;
   }
-  .map-guide span { font-size: 13px; color: #7A6000; font-weight: 500; }
+  .map-guide.pin-mode { background: #FFF3E0; border-bottom: 1px solid #FFE0B2; }
+  .map-guide.draw-mode { background: #E8F5E9; border-bottom: 1px solid #C8E6C9; }
+  .map-guide span { font-size: 13px; font-weight: 500; }
+  .map-guide.pin-mode span { color: #E65100; }
+  .map-guide.draw-mode span { color: #2E7D32; }
 
   .canvas-wrapper {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    background: #f0f0f0;
-    touch-action: none;
+    flex: 1; position: relative; overflow: hidden;
+    background: #e8e8e8; touch-action: none;
   }
-
   #mapImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    pointer-events: none;
-    user-select: none;
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    pointer-events: none; user-select: none;
   }
-
   #drawCanvas {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    touch-action: none;
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; touch-action: none;
   }
 
+  /* 핀 */
+  .pin-container {
+    position: absolute; touch-action: none;
+    transform: translate(-50%, -100%);
+    display: flex; flex-direction: column; align-items: center;
+    cursor: grab; user-select: none;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+    z-index: 10;
+  }
+  .pin-container:active { cursor: grabbing; }
+  .pin-head {
+    width: 36px; height: 36px;
+    background: var(--red); border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex; align-items: center; justify-content: center;
+    border: 3px solid white;
+  }
+  .pin-head::after {
+    content: '📍'; font-size: 0px;
+  }
+  .pin-head .pin-icon {
+    transform: rotate(45deg); font-size: 16px;
+  }
+  .pin-tail {
+    width: 2px; height: 8px; background: var(--red);
+    margin-top: -1px;
+  }
+  .pin-label {
+    background: var(--red); color: white;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 8px; border-radius: 10px;
+    margin-top: 4px; white-space: nowrap;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+
+  /* 툴바 */
   .map-toolbar {
-    padding: 10px 16px;
-    background: white;
-    border-top: 1px solid var(--baemin-border);
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
+    padding: 10px 16px; background: white;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px; flex-shrink: 0;
   }
   .tool-btn {
     flex: 1; padding: 10px 8px;
-    border: 1.5px solid var(--baemin-border);
-    border-radius: 8px;
-    background: white;
-    font-size: 12px; font-weight: 700;
-    color: var(--baemin-sub);
-    cursor: pointer;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    background: white; font-size: 12px; font-weight: 700;
+    color: var(--sub); cursor: pointer;
     font-family: 'Noto Sans KR', sans-serif;
-    transition: all 0.15s;
-    user-select: none;
-    text-align: center;
+    transition: all 0.15s; user-select: none; text-align: center;
   }
-  .tool-btn.active {
-    border-color: var(--baemin-teal);
-    color: var(--baemin-teal);
-    background: #F0FDFB;
-  }
-  .tool-btn.danger {
-    border-color: var(--baemin-red);
-    color: var(--baemin-red);
-  }
+  .tool-btn.active { border-color: var(--teal); color: var(--teal); background: #F0FDFB; }
+  .tool-btn.danger { border-color: var(--red); color: var(--red); }
   .tool-btn:active { opacity: 0.7; }
 
-  /* 완료 화면 */
+  /* 완료 */
   .complete-screen {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    gap: 16px;
-    background: white;
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px; gap: 16px; background: white;
   }
   .complete-icon { font-size: 72px; }
-  .complete-title { font-size: 22px; font-weight: 900; color: var(--baemin-text); }
-  .complete-sub { font-size: 14px; color: var(--baemin-sub); text-align: center; line-height: 1.6; }
+  .complete-title { font-size: 22px; font-weight: 900; color: var(--text); }
+  .complete-sub { font-size: 14px; color: var(--sub); text-align: center; line-height: 1.6; }
   .eta-box {
-    background: var(--baemin-gray);
-    border-radius: 12px;
-    padding: 16px 32px;
-    text-align: center;
-    margin-top: 8px;
+    background: var(--gray-bg); border-radius: 12px;
+    padding: 16px 32px; text-align: center; margin-top: 8px;
   }
-  .eta-box .eta-label { font-size: 12px; color: var(--baemin-sub); }
-  .eta-box .eta-time { font-size: 28px; font-weight: 900; color: var(--baemin-teal); margin-top: 4px; }
+  .eta-box .eta-label { font-size: 12px; color: var(--sub); }
+  .eta-box .eta-time { font-size: 28px; font-weight: 900; color: var(--teal); margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -390,24 +308,12 @@
       </div>
       <div class="section-title">무엇을 드실건가요?</div>
       <div class="category-grid">
-        <div class="category-item" onclick="goToPage(2,'치킨')">
-          <span class="icon">🍗</span><span class="label">치킨</span>
-        </div>
-        <div class="category-item" onclick="goToPage(2,'버거')">
-          <span class="icon">🍔</span><span class="label">버거</span>
-        </div>
-        <div class="category-item" onclick="goToPage(2,'피자')">
-          <span class="icon">🍕</span><span class="label">피자</span>
-        </div>
-        <div class="category-item" onclick="goToPage(2,'중식')">
-          <span class="icon">🍜</span><span class="label">중식</span>
-        </div>
-        <div class="category-item" onclick="goToPage(2,'한식')">
-          <span class="icon">🍚</span><span class="label">한식</span>
-        </div>
-        <div class="category-item" onclick="goToPage(2,'분식')">
-          <span class="icon">🍢</span><span class="label">분식</span>
-        </div>
+        <div class="category-item" onclick="goToPage(2,'치킨')"><span class="icon">🍗</span><span class="label">치킨</span></div>
+        <div class="category-item" onclick="goToPage(2,'버거')"><span class="icon">🍔</span><span class="label">버거</span></div>
+        <div class="category-item" onclick="goToPage(2,'피자')"><span class="icon">🍕</span><span class="label">피자</span></div>
+        <div class="category-item" onclick="goToPage(2,'중식')"><span class="icon">🍜</span><span class="label">중식</span></div>
+        <div class="category-item" onclick="goToPage(2,'한식')"><span class="icon">🍚</span><span class="label">한식</span></div>
+        <div class="category-item" onclick="goToPage(2,'분식')"><span class="icon">🍢</span><span class="label">분식</span></div>
       </div>
     </div>
   </div>
@@ -427,27 +333,15 @@
       <div class="option-section">
         <h3>추가 옵션 (선택)</h3>
         <div class="option-item">
-          <label>
-            <input class="custom-check" type="checkbox" id="opt1">
-            <span class="check-box"></span>
-            🧀 치즈 추가
-          </label>
+          <label><input class="custom-check" type="checkbox"><span class="check-box"></span>🧀 치즈 추가</label>
           <span class="opt-price">+500원</span>
         </div>
         <div class="option-item">
-          <label>
-            <input class="custom-check" type="checkbox" id="opt2">
-            <span class="check-box"></span>
-            🥩 패티 추가
-          </label>
+          <label><input class="custom-check" type="checkbox"><span class="check-box"></span>🥩 패티 추가</label>
           <span class="opt-price">+2,500원</span>
         </div>
         <div class="option-item">
-          <label>
-            <input class="custom-check" type="checkbox" id="opt3">
-            <span class="check-box"></span>
-            🧅 양파 빼기
-          </label>
+          <label><input class="custom-check" type="checkbox"><span class="check-box"></span>🧅 양파 빼기</label>
           <span class="opt-price">무료</span>
         </div>
       </div>
@@ -473,7 +367,7 @@
           </div>
           <div class="method-price">+3,000원</div>
         </div>
-        <div class="method-card selected" id="robotCard" onclick="selectDelivery(this,'robot')">
+        <div class="method-card selected" onclick="selectDelivery(this,'robot')">
           <div class="method-left">
             <div class="method-name">🤖 캠퍼스 로봇 배달<span class="robot-badge">무료</span></div>
             <div class="method-desc">직접 수령 위치를 지정하세요</div>
@@ -493,27 +387,46 @@
     </div>
   </div>
 
-  <!-- 페이지 4: 지도 -->
+  <!-- 페이지 4: 지도 (핀 설정 → 경로 그리기) -->
   <div id="page4" class="page">
     <div class="header">
       <button class="back-btn" onclick="goToPage(3)">‹</button>
-      <h1>수령 위치 지정</h1>
+      <h1 id="mapPageTitle">수령 위치 지정</h1>
     </div>
     <div class="map-page-content">
-      <div class="map-guide">
-        <span>✏️ 지도 위에 손가락으로 로봇 경로를 그려주세요</span>
+
+      <!-- 단계 표시 -->
+      <div class="step-indicator">
+        <div class="step-dot active" id="step1dot"></div>
+        <div class="step-dot" id="step2dot"></div>
       </div>
+
+      <!-- 안내 메시지 -->
+      <div class="map-guide pin-mode" id="mapGuide">
+        <span>📍 핀을 드래그해서 도착 위치를 정해주세요</span>
+      </div>
+
+      <!-- 캔버스 영역 -->
       <div class="canvas-wrapper" id="canvasWrapper">
         <img id="mapImage" src="" alt="캠퍼스 지도">
         <canvas id="drawCanvas"></canvas>
+        <!-- 드래그 가능한 핀 -->
+        <div class="pin-container" id="destinationPin">
+          <div class="pin-head"><span class="pin-icon">🏁</span></div>
+          <div class="pin-tail"></div>
+          <div class="pin-label">도착지</div>
+        </div>
       </div>
-      <div class="map-toolbar">
-        <button class="tool-btn active" id="drawBtn" onclick="setMode('draw')">✏️ 그리기</button>
-        <button class="tool-btn danger" id="clearBtn" onclick="clearCanvas()">🗑️ 초기화</button>
+
+      <!-- 툴바 (그리기 모드에서만 표시) -->
+      <div class="map-toolbar" id="mapToolbar" style="display:none;">
+        <button class="tool-btn active" id="drawBtn">✏️ 그리기</button>
+        <button class="tool-btn danger" onclick="clearDrawing()">🗑️ 다시 그리기</button>
       </div>
+
     </div>
     <div class="bottom-bar">
-      <button class="main-btn" id="submitBtn" onclick="goToPage(5)">경로 전송 및 주문 완료</button>
+      <button class="main-btn" id="mapNextBtn" onclick="mapNextStep()">이 위치로 설정하기</button>
     </div>
   </div>
 
@@ -530,192 +443,281 @@
       </div>
     </div>
     <div class="bottom-bar">
-      <button class="main-btn" onclick="goToPage(1)">처음으로 돌아가기</button>
+      <button class="main-btn" onclick="resetApp()">처음으로 돌아가기</button>
     </div>
   </div>
 
 </div>
-
 <script>
-  // ── 페이지 전환 ──
-  let selectedDelivery = 'robot';
+// ── 페이지 전환 ──
+let selectedDelivery = 'robot';
 
-  function goToPage(n, title) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page' + n).classList.add('active');
-    if (n === 2 && title) document.getElementById('menuTitle').textContent = title + ' 전문점';
-    if (n === 4) initCanvas();
+function goToPage(n, title) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page' + n).classList.add('active');
+  if (n === 2 && title) document.getElementById('menuTitle').textContent = title + ' 전문점';
+  if (n === 4) initMapPage();
+}
+
+function selectDelivery(el, type) {
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDelivery = type;
+  if (type === 'robot') {
+    document.getElementById('deliveryFee').textContent = '0원';
+    document.getElementById('totalPrice').textContent = '12,500원';
+    document.getElementById('checkoutBtn').textContent = '로봇 수령 위치 지정하기';
+  } else {
+    document.getElementById('deliveryFee').textContent = '3,000원';
+    document.getElementById('totalPrice').textContent = '15,500원';
+    document.getElementById('checkoutBtn').textContent = '결제하기';
   }
+}
 
-  function selectDelivery(el, type) {
-    document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedDelivery = type;
-    if (type === 'robot') {
-      document.getElementById('deliveryFee').textContent = '0원';
-      document.getElementById('totalPrice').textContent = '12,500원';
-      document.getElementById('checkoutBtn').textContent = '로봇 수령 위치 지정하기';
-    } else {
-      document.getElementById('deliveryFee').textContent = '3,000원';
-      document.getElementById('totalPrice').textContent = '15,500원';
-      document.getElementById('checkoutBtn').textContent = '결제하기';
-    }
-  }
+function handleCheckout() {
+  if (selectedDelivery === 'robot') goToPage(4);
+  else { alert('일반 배달 주문이 완료됐어요!'); goToPage(1); }
+}
 
-  function handleCheckout() {
-    if (selectedDelivery === 'robot') goToPage(4);
-    else { alert('일반 배달 주문이 완료됐어요!'); goToPage(1); }
-  }
+function resetApp() {
+  mapStep = 'pin';
+  goToPage(1);
+}
 
-  // ── Canvas 그리기 ──
-  let canvas, ctx, isDrawing = false, currentMode = 'draw';
-  let lastX = 0, lastY = 0;
+// ── 지도 페이지 ──
+let canvas, ctx, isDrawing = false;
+let mapStep = 'pin'; // 'pin' | 'draw'
 
-  function initCanvas() {
-    canvas = document.getElementById('drawCanvas');
-    const wrapper = document.getElementById('canvasWrapper');
-    ctx = canvas.getContext('2d');
+function initMapPage() {
+  mapStep = 'pin';
+  updateMapUI();
 
-    // canvas 크기를 wrapper에 맞춤
-    function resizeCanvas() {
-      const w = wrapper.offsetWidth;
-      const h = wrapper.offsetHeight;
-      // 기존 그림 보존
-      const imageData = canvas.width > 0 ? ctx.getImageData(0, 0, canvas.width, canvas.height) : null;
-      canvas.width = w;
-      canvas.height = h;
-      if (imageData) ctx.putImageData(imageData, 0, 0);
-      setupCtx();
-    }
+  canvas = document.getElementById('drawCanvas');
+  const wrapper = document.getElementById('canvasWrapper');
+  ctx = canvas.getContext('2d');
 
-    resizeCanvas();
+  // 캔버스 크기 맞추기
+  canvas.width = wrapper.offsetWidth;
+  canvas.height = wrapper.offsetHeight;
 
-    // 지도 이미지 없을 때 플레이스홀더 그리기
-    const img = document.getElementById('mapImage');
-    if (!img.src || img.src === window.location.href) {
-      drawPlaceholder();
-    }
+  // 핀 초기 위치: 캔버스 중앙
+  const pin = document.getElementById('destinationPin');
+  pin.style.left = (wrapper.offsetWidth / 2) + 'px';
+  pin.style.top = (wrapper.offsetHeight / 2) + 'px';
 
-    // 터치 이벤트 (모바일 우선)
-    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-    canvas.addEventListener('touchend', onTouchEnd, { passive: false });
-
-    // 마우스 이벤트 (PC 보조)
-    canvas.addEventListener('mousedown', onMouseDown);
-    canvas.addEventListener('mousemove', onMouseMove);
-    canvas.addEventListener('mouseup', onMouseUp);
-    canvas.addEventListener('mouseleave', onMouseUp);
-  }
-
-  function setupCtx() {
-    if (!ctx) return;
-    ctx.strokeStyle = '#FF4757';
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-  }
-
-  function drawPlaceholder() {
-    if (!ctx || !canvas) return;
-    ctx.fillStyle = '#E8F5E8';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // 격자 배경
-    ctx.strokeStyle = '#C8E6C9';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < canvas.width; x += 30) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-    }
-    for (let y = 0; y < canvas.height; y += 30) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-    }
-
-    // 안내 텍스트
-    ctx.fillStyle = '#4CAF50';
-    ctx.font = 'bold 15px Noto Sans KR, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('지도 이미지를 준비해주세요', canvas.width / 2, canvas.height / 2 - 20);
-    ctx.font = '13px Noto Sans KR, sans-serif';
-    ctx.fillStyle = '#81C784';
-    ctx.fillText('img 태그의 src에 이미지 경로를 넣으면', canvas.width / 2, canvas.height / 2 + 10);
-    ctx.fillText('지도 위에 선을 그릴 수 있습니다', canvas.width / 2, canvas.height / 2 + 32);
-    setupCtx();
-  }
-
-  function setMode(mode) {
-    currentMode = mode;
-    document.getElementById('drawBtn').className = 'tool-btn' + (mode === 'draw' ? ' active' : '');
-  }
-
-  function clearCanvas() {
-    if (!ctx || !canvas) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // 지도 플레이스홀더
+  const img = document.getElementById('mapImage');
+  if (!img.src || img.src === window.location.href || img.getAttribute('src') === '') {
     drawPlaceholder();
   }
 
-  // 터치 좌표 추출
-  function getTouchPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0] || e.changedTouches[0];
-    return {
-      x: (touch.clientX - rect.left) * (canvas.width / rect.width),
-      y: (touch.clientY - rect.top) * (canvas.height / rect.height)
-    };
-  }
+  // 핀 드래그 이벤트
+  initPinDrag();
 
-  function getMousePos(e) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: (e.clientX - rect.left) * (canvas.width / rect.width),
-      y: (e.clientY - rect.top) * (canvas.height / rect.height)
-    };
-  }
+  // 캔버스 그리기 이벤트 (그리기 모드일 때만 동작)
+  canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+  canvas.addEventListener('touchend', onTouchEnd, { passive: false });
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', () => { isDrawing = false; });
+  canvas.addEventListener('mouseleave', () => { isDrawing = false; });
 
-  // 터치 이벤트
-  function onTouchStart(e) {
+  setupCtx();
+}
+
+function updateMapUI() {
+  const guide = document.getElementById('mapGuide');
+  const toolbar = document.getElementById('mapToolbar');
+  const nextBtn = document.getElementById('mapNextBtn');
+  const title = document.getElementById('mapPageTitle');
+  const step1 = document.getElementById('step1dot');
+  const step2 = document.getElementById('step2dot');
+  const pin = document.getElementById('destinationPin');
+
+  if (mapStep === 'pin') {
+    guide.className = 'map-guide pin-mode';
+    guide.innerHTML = '<span>📍 핀을 드래그해서 도착 위치를 정해주세요</span>';
+    toolbar.style.display = 'none';
+    nextBtn.textContent = '이 위치로 설정하기';
+    nextBtn.className = 'main-btn';
+    title.textContent = '수령 위치 지정';
+    step1.classList.add('active');
+    step2.classList.remove('active');
+    pin.style.display = 'flex';
+    // 핀 모드에서는 캔버스 터치 비활성화 (핀 드래그 우선)
+    if (canvas) canvas.style.pointerEvents = 'none';
+  } else {
+    guide.className = 'map-guide draw-mode';
+    guide.innerHTML = '<span>✏️ 출발지에서 핀까지 경로를 그어주세요</span>';
+    toolbar.style.display = 'flex';
+    nextBtn.textContent = '경로 전송 및 주문 완료';
+    nextBtn.className = 'main-btn';
+    title.textContent = '경로 그리기';
+    step1.classList.add('active');
+    step2.classList.add('active');
+    pin.style.display = 'flex';
+    pin.style.pointerEvents = 'none'; // 그리기 모드에서 핀 터치 비활성화
+    // 캔버스 터치 활성화
+    if (canvas) canvas.style.pointerEvents = 'auto';
+  }
+}
+
+function mapNextStep() {
+  if (mapStep === 'pin') {
+    mapStep = 'draw';
+    updateMapUI();
+  } else {
+    goToPage(5);
+  }
+}
+
+// ── 핀 드래그 ──
+function initPinDrag() {
+  const pin = document.getElementById('destinationPin');
+  const wrapper = document.getElementById('canvasWrapper');
+
+  let dragging = false;
+  let offsetX = 0, offsetY = 0;
+
+  // 터치
+  pin.addEventListener('touchstart', (e) => {
+    if (mapStep !== 'pin') return;
     e.preventDefault();
-    if (currentMode !== 'draw') return;
-    isDrawing = true;
-    const pos = getTouchPos(e);
-    lastX = pos.x; lastY = pos.y;
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-  }
+    dragging = true;
+    const rect = wrapper.getBoundingClientRect();
+    const touch = e.touches[0];
+    const pinRect = pin.getBoundingClientRect();
+    offsetX = touch.clientX - pinRect.left - pinRect.width / 2;
+    offsetY = touch.clientY - pinRect.top;
+  }, { passive: false });
 
-  function onTouchMove(e) {
+  document.addEventListener('touchmove', (e) => {
+    if (!dragging || mapStep !== 'pin') return;
     e.preventDefault();
-    if (!isDrawing || currentMode !== 'draw') return;
-    const pos = getTouchPos(e);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-    lastX = pos.x; lastY = pos.y;
-  }
+    const rect = wrapper.getBoundingClientRect();
+    const touch = e.touches[0];
+    let x = touch.clientX - rect.left - offsetX;
+    let y = touch.clientY - rect.top - offsetY;
+    x = Math.max(0, Math.min(x, wrapper.offsetWidth));
+    y = Math.max(0, Math.min(y, wrapper.offsetHeight));
+    pin.style.left = x + 'px';
+    pin.style.top = y + 'px';
+  }, { passive: false });
 
-  function onTouchEnd(e) {
+  document.addEventListener('touchend', () => { dragging = false; });
+
+  // 마우스
+  pin.addEventListener('mousedown', (e) => {
+    if (mapStep !== 'pin') return;
     e.preventDefault();
-    isDrawing = false;
-  }
+    dragging = true;
+    const pinRect = pin.getBoundingClientRect();
+    offsetX = e.clientX - pinRect.left - pinRect.width / 2;
+    offsetY = e.clientY - pinRect.top;
+  });
 
-  // 마우스 이벤트
-  function onMouseDown(e) {
-    if (currentMode !== 'draw') return;
-    isDrawing = true;
-    const pos = getMousePos(e);
-    lastX = pos.x; lastY = pos.y;
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-  }
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging || mapStep !== 'pin') return;
+    const rect = wrapper.getBoundingClientRect();
+    let x = e.clientX - rect.left - offsetX;
+    let y = e.clientY - rect.top - offsetY;
+    x = Math.max(0, Math.min(x, wrapper.offsetWidth));
+    y = Math.max(0, Math.min(y, wrapper.offsetHeight));
+    pin.style.left = x + 'px';
+    pin.style.top = y + 'px';
+  });
 
-  function onMouseMove(e) {
-    if (!isDrawing || currentMode !== 'draw') return;
-    const pos = getMousePos(e);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-    lastX = pos.x; lastY = pos.y;
-  }
+  document.addEventListener('mouseup', () => { dragging = false; });
+}
 
-  function onMouseUp() { isDrawing = false; }
+// ── Canvas 그리기 ──
+function setupCtx() {
+  if (!ctx) return;
+  ctx.strokeStyle = '#FF4757';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+}
+
+function drawPlaceholder() {
+  if (!ctx || !canvas) return;
+  ctx.fillStyle = '#E8F5E8';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#C8E6C9';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < canvas.width; x += 30) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += 30) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+  }
+  ctx.fillStyle = '#4CAF50';
+  ctx.font = 'bold 14px Noto Sans KR, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('지도 이미지를 연결해주세요', canvas.width / 2, canvas.height / 2 - 10);
+  ctx.font = '12px Noto Sans KR, sans-serif';
+  ctx.fillStyle = '#81C784';
+  ctx.fillText('img#mapImage의 src에 이미지 경로 입력', canvas.width / 2, canvas.height / 2 + 16);
+  setupCtx();
+}
+
+function clearDrawing() {
+  if (!ctx || !canvas) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawPlaceholder();
+  setupCtx();
+}
+
+function getTouchPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0] || e.changedTouches[0];
+  return {
+    x: (touch.clientX - rect.left) * (canvas.width / rect.width),
+    y: (touch.clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function getMousePos(e) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * (canvas.width / rect.width),
+    y: (e.clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function onTouchStart(e) {
+  if (mapStep !== 'draw') return;
+  e.preventDefault();
+  isDrawing = true;
+  const pos = getTouchPos(e);
+  ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+}
+
+function onTouchMove(e) {
+  if (mapStep !== 'draw' || !isDrawing) return;
+  e.preventDefault();
+  const pos = getTouchPos(e);
+  ctx.lineTo(pos.x, pos.y); ctx.stroke();
+}
+
+function onTouchEnd(e) {
+  e.preventDefault();
+  isDrawing = false;
+}
+
+function onMouseDown(e) {
+  if (mapStep !== 'draw') return;
+  isDrawing = true;
+  const pos = getMousePos(e);
+  ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+}
+
+function onMouseMove(e) {
+  if (mapStep !== 'draw' || !isDrawing) return;
+  const pos = getMousePos(e);
+  ctx.lineTo(pos.x, pos.y); ctx.stroke();
+}
 </script>
 </body>
 </html>
