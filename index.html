@@ -177,9 +177,8 @@
     transition: background 0.15s; user-select: none;
   }
   .main-btn:active { background: var(--teal-dark); }
-  .main-btn.gray { background: #ccc; }
 
-  /* ── 지도 페이지 공통 ── */
+  /* 지도 페이지 */
   .map-page-content {
     flex: 1; display: flex; flex-direction: column; overflow: hidden; background: white;
   }
@@ -235,16 +234,8 @@
     display: flex; align-items: center; justify-content: center;
     border: 3px solid white;
   }
-  .pin-head::after {
-    content: '📍'; font-size: 0px;
-  }
-  .pin-head .pin-icon {
-    transform: rotate(45deg); font-size: 10px;
-  }
-  .pin-tail {
-    width: 2px; height: 5px; background: var(--red);
-    margin-top: -1px;
-  }
+  .pin-head .pin-icon { transform: rotate(45deg); font-size: 10px; }
+  .pin-tail { width: 2px; height: 5px; background: var(--red); margin-top: -1px; }
   .pin-label {
     background: var(--red); color: white;
     font-size: 10px; font-weight: 700;
@@ -253,11 +244,12 @@
     font-family: 'Noto Sans KR', sans-serif;
   }
 
-  /* 툴바 */
+  /* 툴바 - visibility로 레이아웃 고정 */
   .map-toolbar {
     padding: 10px 16px; background: white;
     border-top: 1px solid var(--border);
     display: flex; gap: 8px; flex-shrink: 0;
+    visibility: hidden;
   }
   .tool-btn {
     flex: 1; padding: 10px 8px;
@@ -387,43 +379,33 @@
     </div>
   </div>
 
-  <!-- 페이지 4: 지도 (핀 설정 → 경로 그리기) -->
+  <!-- 페이지 4: 지도 -->
   <div id="page4" class="page">
     <div class="header">
       <button class="back-btn" onclick="goToPage(3)">‹</button>
       <h1 id="mapPageTitle">수령 위치 지정</h1>
     </div>
     <div class="map-page-content">
-
-      <!-- 단계 표시 -->
       <div class="step-indicator">
         <div class="step-dot active" id="step1dot"></div>
         <div class="step-dot" id="step2dot"></div>
       </div>
-
-      <!-- 안내 메시지 -->
       <div class="map-guide pin-mode" id="mapGuide">
         <span>📍 핀을 드래그해서 도착 위치를 정해주세요</span>
       </div>
-
-      <!-- 캔버스 영역 -->
       <div class="canvas-wrapper" id="canvasWrapper">
-        <img id="mapImage" src="./naver_map%203.png" alt="캠퍼스 지도">
+        <img id="mapImage" src="./naver_map_3.png" alt="캠퍼스 지도">
         <canvas id="drawCanvas"></canvas>
-        <!-- 드래그 가능한 핀 -->
         <div class="pin-container" id="destinationPin">
           <div class="pin-head"><span class="pin-icon">🏁</span></div>
           <div class="pin-tail"></div>
           <div class="pin-label">도착지</div>
         </div>
       </div>
-
-      <!-- 툴바 (그리기 모드에서만 표시) -->
-      <div class="map-toolbar" id="mapToolbar" style="display:none;">
-        <button class="tool-btn active" id="drawBtn">✏️ 그리기</button>
+      <div class="map-toolbar" id="mapToolbar">
+        <button class="tool-btn active">✏️ 그리기</button>
         <button class="tool-btn danger" onclick="clearDrawing()">🗑️ 다시 그리기</button>
       </div>
-
     </div>
     <div class="bottom-bar">
       <button class="main-btn" id="mapNextBtn" onclick="mapNextStep()">이 위치로 설정하기</button>
@@ -486,7 +468,8 @@ function resetApp() {
 
 // ── 지도 페이지 ──
 let canvas, ctx, isDrawing = false;
-let mapStep = 'pin'; // 'pin' | 'draw'
+let mapStep = 'pin';
+let pinInitialized = false;
 
 function initMapPage() {
   mapStep = 'pin';
@@ -496,25 +479,29 @@ function initMapPage() {
   const wrapper = document.getElementById('canvasWrapper');
   ctx = canvas.getContext('2d');
 
-  // 캔버스 크기 맞추기
   canvas.width = wrapper.offsetWidth;
   canvas.height = wrapper.offsetHeight;
 
-  // 핀 초기 위치: 캔버스 중앙
-  const pin = document.getElementById('destinationPin');
-  pin.style.left = (wrapper.offsetWidth / 2) + 'px';
-  pin.style.top = (wrapper.offsetHeight / 2) + 'px';
-
-  // 지도 플레이스홀더
-  const img = document.getElementById('mapImage');
-  if (!img.src || img.src === window.location.href || img.getAttribute('src') === '') {
-    drawPlaceholder();
+  // 핀 초기 위치: 중앙 (최초 1회만)
+  if (!pinInitialized) {
+    const pin = document.getElementById('destinationPin');
+    pin.style.left = (wrapper.offsetWidth / 2) + 'px';
+    pin.style.top = (wrapper.offsetHeight / 2) + 'px';
+    pinInitialized = true;
   }
 
-  // 핀 드래그 이벤트
+  setupCtx();
   initPinDrag();
 
-  // 캔버스 그리기 이벤트 (그리기 모드일 때만 동작)
+  // 이벤트 중복 방지를 위해 새 캔버스 요소로 교체
+  const newCanvas = canvas.cloneNode(true);
+  canvas.parentNode.replaceChild(newCanvas, canvas);
+  canvas = newCanvas;
+  ctx = canvas.getContext('2d');
+  canvas.width = wrapper.offsetWidth;
+  canvas.height = wrapper.offsetHeight;
+  setupCtx();
+
   canvas.addEventListener('touchstart', onTouchStart, { passive: false });
   canvas.addEventListener('touchmove', onTouchMove, { passive: false });
   canvas.addEventListener('touchend', onTouchEnd, { passive: false });
@@ -522,8 +509,6 @@ function initMapPage() {
   canvas.addEventListener('mousemove', onMouseMove);
   canvas.addEventListener('mouseup', () => { isDrawing = false; });
   canvas.addEventListener('mouseleave', () => { isDrawing = false; });
-
-  setupCtx();
 }
 
 function updateMapUI() {
@@ -531,34 +516,27 @@ function updateMapUI() {
   const toolbar = document.getElementById('mapToolbar');
   const nextBtn = document.getElementById('mapNextBtn');
   const title = document.getElementById('mapPageTitle');
-  const step1 = document.getElementById('step1dot');
-  const step2 = document.getElementById('step2dot');
   const pin = document.getElementById('destinationPin');
 
   if (mapStep === 'pin') {
     guide.className = 'map-guide pin-mode';
     guide.innerHTML = '<span>📍 핀을 드래그해서 도착 위치를 정해주세요</span>';
-    toolbar.style.display = 'none';
+    toolbar.style.visibility = 'hidden';
     nextBtn.textContent = '이 위치로 설정하기';
-    nextBtn.className = 'main-btn';
     title.textContent = '수령 위치 지정';
-    step1.classList.add('active');
-    step2.classList.remove('active');
-    pin.style.display = 'flex';
-    // 핀 모드에서는 캔버스 터치 비활성화 (핀 드래그 우선)
+    document.getElementById('step1dot').classList.add('active');
+    document.getElementById('step2dot').classList.remove('active');
+    pin.style.pointerEvents = 'auto';
     if (canvas) canvas.style.pointerEvents = 'none';
   } else {
     guide.className = 'map-guide draw-mode';
     guide.innerHTML = '<span>✏️ 출발지에서 핀까지 경로를 그어주세요</span>';
-    toolbar.style.display = 'flex';
+    toolbar.style.visibility = 'visible';
     nextBtn.textContent = '경로 전송 및 주문 완료';
-    nextBtn.className = 'main-btn';
     title.textContent = '경로 그리기';
-    step1.classList.add('active');
-    step2.classList.add('active');
-    pin.style.display = 'flex';
-    pin.style.pointerEvents = 'none'; // 그리기 모드에서 핀 터치 비활성화
-    // 캔버스 터치 활성화
+    document.getElementById('step1dot').classList.add('active');
+    document.getElementById('step2dot').classList.add('active');
+    pin.style.pointerEvents = 'none';
     if (canvas) canvas.style.pointerEvents = 'auto';
   }
 }
@@ -573,23 +551,25 @@ function mapNextStep() {
 }
 
 // ── 핀 드래그 ──
+let pinDragInitialized = false;
+
 function initPinDrag() {
+  if (pinDragInitialized) return;
+  pinDragInitialized = true;
+
   const pin = document.getElementById('destinationPin');
   const wrapper = document.getElementById('canvasWrapper');
-
   let dragging = false;
   let offsetX = 0, offsetY = 0;
 
-  // 터치
   pin.addEventListener('touchstart', (e) => {
     if (mapStep !== 'pin') return;
-    e.preventDefault();
+    e.preventDefault(); e.stopPropagation();
     dragging = true;
     const rect = wrapper.getBoundingClientRect();
     const touch = e.touches[0];
-    const pinRect = pin.getBoundingClientRect();
-    offsetX = touch.clientX - pinRect.left - pinRect.width / 2;
-    offsetY = touch.clientY - pinRect.top;
+    offsetX = touch.clientX - rect.left - parseFloat(pin.style.left || wrapper.offsetWidth / 2);
+    offsetY = touch.clientY - rect.top - parseFloat(pin.style.top || wrapper.offsetHeight / 2);
   }, { passive: false });
 
   document.addEventListener('touchmove', (e) => {
@@ -607,14 +587,12 @@ function initPinDrag() {
 
   document.addEventListener('touchend', () => { dragging = false; });
 
-  // 마우스
   pin.addEventListener('mousedown', (e) => {
     if (mapStep !== 'pin') return;
     e.preventDefault();
     dragging = true;
-    const pinRect = pin.getBoundingClientRect();
-    offsetX = e.clientX - pinRect.left - pinRect.width / 2;
-    offsetY = e.clientY - pinRect.top;
+    offsetX = e.clientX - wrapper.getBoundingClientRect().left - parseFloat(pin.style.left);
+    offsetY = e.clientY - wrapper.getBoundingClientRect().top - parseFloat(pin.style.top);
   });
 
   document.addEventListener('mousemove', (e) => {
@@ -638,28 +616,6 @@ function setupCtx() {
   ctx.lineWidth = 5;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-}
-
-function drawPlaceholder() {
-  if (!ctx || !canvas) return;
-  ctx.fillStyle = '#E8F5E8';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = '#C8E6C9';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < canvas.width; x += 30) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-  }
-  for (let y = 0; y < canvas.height; y += 30) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-  }
-  ctx.fillStyle = '#4CAF50';
-  ctx.font = 'bold 14px Noto Sans KR, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('지도 이미지를 연결해주세요', canvas.width / 2, canvas.height / 2 - 10);
-  ctx.font = '12px Noto Sans KR, sans-serif';
-  ctx.fillStyle = '#81C784';
-  ctx.fillText('img#mapImage의 src에 이미지 경로 입력', canvas.width / 2, canvas.height / 2 + 16);
-  setupCtx();
 }
 
 function clearDrawing() {
